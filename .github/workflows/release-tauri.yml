@@ -715,7 +715,12 @@ jobs:
           mkdir -p "$RUNNER_TEMP/dmg"
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
             --dir "$RUNNER_TEMP/dmg" \
-            --pattern '*aarch64.dmg' --pattern '*_x64.dmg'
+            --pattern '*aarch64.dmg' --pattern '*_x64.dmg' || true
+
+          if ! ls "$RUNNER_TEMP"/dmg/*.dmg 1> /dev/null 2>&1; then
+            echo "::warning::No DMG files found in release, skipping Homebrew cask update."
+            exit 0
+          fi
 
           arm_sha="$(sha256sum "$RUNNER_TEMP"/dmg/*aarch64.dmg | cut -d' ' -f1)"
           intel_sha="$(sha256sum "$RUNNER_TEMP"/dmg/*_x64.dmg | cut -d' ' -f1)"
