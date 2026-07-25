@@ -65,6 +65,7 @@ use crate::windows_ime_session::{PreparedWindowsImeSession, WindowsImeSessionCon
 mod asr_wiring;
 mod capsule_focus;
 mod dictation;
+mod dictation_pipeline;
 mod hotkey_loops;
 mod polish_flow;
 mod qa;
@@ -73,6 +74,7 @@ mod resources;
 
 use asr_wiring::*;
 use capsule_focus::*;
+use dictation_pipeline::*;
 use hotkey_loops::*;
 use polish_flow::*;
 use qa_session::*;

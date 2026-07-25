@@ -83,6 +83,8 @@ mod unicode_keystroke;
 mod unicode_keystroke;
 #[cfg(target_os = "windows")]
 mod windows_ime_ipc;
+mod windows_ime_adapter;
+pub use windows_ime_adapter::*;
 mod windows_ime_profile;
 #[cfg(target_os = "windows")]
 mod windows_ime_protocol;

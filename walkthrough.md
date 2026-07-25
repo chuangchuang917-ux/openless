@@ -68,3 +68,16 @@
    - 優化了 [polish.rs](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/src/polish.rs) 中的 `translate_system_prompt_base`，將輸出的否定禁令轉為正向格式規範（`直接输出翻译后的纯文本正文（从第一个字起即为译文正文本身）。`），提升 LLM 格式遵循穩定度。
    - 所有單元測試與 Node 驗證腳本皆順利通過。
 
+## 2026-07-25 雙深模組架構重構 (DictationPipeline & WindowsImeAdapter)
+
+根據 [improve-codebase-architecture](file:///c:/Users/alber/Desktop/antigravity/goodinfo_crawler/skills-main/skills/engineering/improve-codebase-architecture/SKILL.md) 評估報告，我們完成了方案 1 與方案 3 的雙深模組重構：
+
+1. **聽寫處理管道深模組 (`DictationPipeline`) — 方案 1**：
+   - 建立 [dictation_pipeline.rs](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/src/coordinator/dictation_pipeline.rs)，將音訊錄製、ASR 啟動、LLM 潤色與失敗退路收攬在深層模組後方。
+   - 對外提供 `start_session()` 與 `cancel()` 的極簡訂閱介面。
+
+2. **Windows IME 轉接器深模組 (`WindowsImeAdapter`) — 方案 3**：
+   - 建立 [windows_ime_adapter.rs](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/src/windows_ime_adapter.rs)，將 TSF Profile 註冊表登錄 (`0x0404`)、管道 IPC 通訊與 Session 狀態完全隱藏。
+   - 提供 `sync_status()` 與 `insert_text(text)` 介面，並於 macOS / Linux 作業系統自動退回 No-Op Stub。
+
+
