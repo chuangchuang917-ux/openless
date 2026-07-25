@@ -38,3 +38,15 @@
    * 修改了 [windows-package-msvc.test.mjs](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/scripts/windows-package-msvc.test.mjs)，將打包測試中對 `0x00000804` 的驗證改為 `0x00000404`。
    * 修改了 [windows-ime-install-smoke.ps1](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/scripts/windows-ime-install-smoke.ps1)，將 `$LangId` 與預期寫入的 `ExpectedBackendKeys` 註冊表鍵值更新為 `0x00000404`。
 
+## UI 樣式與輸出速度分析
+1. **錄音 UI 樣式切換（膠囊視窗 vs 光影/TSF 內聯線）**：
+   - 第一張圖為 OpenLess 的 **「膠囊 (Capsule HUD)」** 浮動 UI (`Capsule.tsx`)。
+   - 第二張圖為隱藏膠囊後，Windows TSF 模式在游標處顯示的 Inline 光束/豎線（或切換至 Less Computer Glow 模式）。
+   - **開啟膠囊 UI 方法**：在軟體「設定 ➔ 錄音與輸入」中，將 **「顯示膠囊 (Show Capsule)」** 開關設為 **開啟 (ON)** 即可恢復圖一的膠囊浮動列。
+
+2. **輸出速度變慢原因與加速建議**：
+   - **原因 1（繁體中文 S2t 處理與流式限制）**：在後端 `dictation.rs` 中，繁體中文 (Traditional) 為了精確進行 OpenCC 詞條轉換，系統會暫停流式逐字發送 (Streaming Insert)，改為整句辨識 + LLM 潤色 + OpenCC 轉換完畢後一次輸出。
+   - **原因 2（插入策略差異）**：TSF 模式或 SendInput 模擬打字較慢。
+   - **加速調整建議**：
+     1. 將「設定 ➔ 錄音與輸入 ➔ 插入策略 (Windows Insertion Mode)」改為 **`Paste (剪貼板)`** 模式，直接透過 Ctrl+V 貼上，輸出速度最快。
+     2. 潤色模式可調整為「原文 (Raw)」或「輕度潤色 (Light)」，減少 LLM 模型的處理時間。
