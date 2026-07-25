@@ -50,3 +50,20 @@
    - **加速調整建議**：
      1. 將「設定 ➔ 錄音與輸入 ➔ 插入策略 (Windows Insertion Mode)」改為 **`Paste (剪貼板)`** 模式，直接透過 Ctrl+V 貼上，輸出速度最快。
      2. 潤色模式可調整為「原文 (Raw)」或「輕度潤色 (Light)」，減少 LLM 模型的處理時間。
+
+## 2026-07-25 繁體中文流式輸入解鎖與 OpenCC 繞過重構
+
+為了大幅提升繁體中文語音輸入的反應速度與即時體驗，我們完成了以下重構（詳見 [implementation_plan.md](file:///C:/Users/alber/.gemini/antigravity-ide/brain/4526f079-5cad-4c4c-93da-54c2af23d112/implementation_plan.md)）：
+
+1. **解鎖繁體中文 Streaming Insert**：
+   - 修改了 [dictation.rs](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/src/coordinator/dictation.rs) 中的 `streaming_insert_eligible(...)` 函數，當啟用 LLM 時允許 `ChineseScriptPreference::Traditional` 解鎖流式逐字輸入。
+   - 更新了單元測試 `streaming_script_gate_allows_all_preferences`。
+
+2. **LLM 成功時繞過 OpenCC 二次轉碼**：
+   - 重構了 `dictation.rs` 中的 `finalize_polished_text`，當 LLM 潤色或翻譯成功時直接輸出 LLM 生成的繁體文字，不再經由 OpenCC (S2t) 重複轉碼。
+   - 僅在 Raw 原文模式或 LLM 連線失敗時保留 OpenCC (S2t) 轉碼做確定性字形兜底。
+   - 更新了單元測試 `polish_output_honors_chinese_script_preference`。
+
+3. **測試與驗證**：
+   - 所有單元測試與 Node 驗證腳本皆順利通過。
+

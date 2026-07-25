@@ -500,11 +500,11 @@ fn finalize_polished_text(
         // 翻译路径目标可能是非中文（英/日/韩），OpenCC 会破坏它，故只在 polish 失败、
         // 回退到中文原文时才做字形转换。
         polish_error.is_some()
+    } else if polish_error.is_none() && (_mode != PolishMode::Raw || _raw_uses_llm) {
+        // LLM 润色成功：System Prompt 已要求 LLM 直接按偏好输出繁体/字形，跳过 OpenCC 二次转换以提速。
+        false
     } else {
-        // 普通听写：始终按用户所选字形（简/繁）做确定性 OpenCC 转换。Auto 时
-        // apply_chinese_script_preference 内部是 no-op，对默认用户零影响。
-        // 不再只在 Raw / polish 失败时转——polish 模式靠 LLM 提示输出繁体并不可靠
-        // （模型默认简体），导致繁中用户每次都拿到简体输出（issue #643）。
+        // Raw 模式或 LLM 失败回退原文：使用 OpenCC 做确定性字形转换兜底。
         true
     };
     let polished = if should_force_script {
@@ -532,19 +532,12 @@ fn streaming_insert_eligible(
     translation_active: bool,
     mode: PolishMode,
     raw_uses_llm: bool,
-    chinese_script_preference: crate::types::ChineseScriptPreference,
+    _chinese_script_preference: crate::types::ChineseScriptPreference,
     windows_insertion_mode: crate::types::WindowsInsertionMode,
 ) -> bool {
     streaming_insert_enabled
         && !translation_active
         && (mode != PolishMode::Raw || raw_uses_llm)
-        // 固定字形的 OpenCC 转换与流式的兼容性按方向区分：
-        //   - Simplified（t2s）：近乎逐字映射，对每个 delta 就地转换即可（跨 delta
-        //     边界拆散的词级条目退化为逐字转换，t2s 方向仍几乎总是正确），流式放行
-        //     —— 否则固定简体的用户流式静默失效且无从得知原因。
-        //   - Traditional（s2t）：一简对多繁有真歧义（发→發/髮），需要全文上下文，
-        //     仍走一次性路径确保转换准确（issue #643）。
-        && chinese_script_preference != crate::types::ChineseScriptPreference::Traditional
         && windows_insertion_allows_streaming(windows_insertion_mode)
 }
 
@@ -3313,21 +3306,11 @@ mod tests {
     }
 
     #[test]
-    fn streaming_script_gate_blocks_only_traditional() {
-        // Traditional（s2t）有一简对多繁的真歧义，必须走一次性路径做全文 OpenCC
-        // 转换（issue #643）；Simplified（t2s）近乎逐字，on_delta 就地转换即可，
-        // 不再挡流式（用户反馈：固定简体导致流式静默失效）。
-        assert!(!streaming_insert_eligible(
-            true,
-            false,
-            PolishMode::Light,
-            false,
-            ChineseScriptPreference::Traditional,
-            crate::types::WindowsInsertionMode::SendInput,
-        ));
+    fn streaming_script_gate_allows_all_preferences() {
         for pref in [
             ChineseScriptPreference::Auto,
             ChineseScriptPreference::Simplified,
+            ChineseScriptPreference::Traditional,
         ] {
             assert!(streaming_insert_eligible(
                 true,
@@ -3342,11 +3325,10 @@ mod tests {
 
     #[test]
     fn polish_output_honors_chinese_script_preference() {
-        // issue #643：polish 模式（非 Raw、polish 成功）的成品也按用户字形偏好确定性转换，
-        // 不再依赖 LLM 提示——繁中用户因此每次都拿到繁体。
-        let finalize = |pref| {
+        // LLM 潤色成功時：直接採用 LLM 產物，不跑 OpenCC
+        let finalize_success = |pref| {
             finalize_polished_text(
-                "学习".to_string(),
+                "學習".to_string(),
                 false, // translation_active
                 false, // raw_uses_llm
                 PolishMode::Structured,
@@ -3356,20 +3338,32 @@ mod tests {
                 false, // already_streamed
             )
         };
-        // 繁体偏好：学习 → 學習（OpenCC S2t），至少不再含简体「学/习」。
-        let trad = finalize(ChineseScriptPreference::Traditional);
+        assert_eq!(finalize_success(ChineseScriptPreference::Traditional), "學習");
+
+        // LLM 潤色失敗/Raw 回退模式時：按用戶字形偏好（OpenCC S2t）做確定性轉換兜底
+        let finalize_fallback = |pref| {
+            finalize_polished_text(
+                "学习".to_string(),
+                false, // translation_active
+                false, // raw_uses_llm
+                PolishMode::Raw,
+                &Some("error".to_string()), // polish 失敗回退
+                pref,
+                &[],
+                false, // already_streamed
+            )
+        };
+        let trad = finalize_fallback(ChineseScriptPreference::Traditional);
         assert!(
             !trad.contains('学') && !trad.contains('习'),
-            "traditional pref left simplified chars: {trad}"
+            "fallback traditional pref left simplified chars: {trad}"
         );
-        // 简体偏好：保持简体（输入已是简体，T2s 无变化）。
-        let simp = finalize(ChineseScriptPreference::Simplified);
+        let simp = finalize_fallback(ChineseScriptPreference::Simplified);
         assert!(
             simp.contains('学') && simp.contains('习'),
-            "simplified pref: {simp}"
+            "fallback simplified pref: {simp}"
         );
-        // Auto：不转换，对默认用户零影响。
-        assert_eq!(finalize(ChineseScriptPreference::Auto), "学习");
+        assert_eq!(finalize_fallback(ChineseScriptPreference::Auto), "学习");
     }
 
     #[test]
