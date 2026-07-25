@@ -527,7 +527,7 @@ fn finalize_polished_text(
     }
 }
 
-fn streaming_insert_eligible(
+pub(crate) fn streaming_insert_eligible(
     streaming_insert_enabled: bool,
     translation_active: bool,
     mode: PolishMode,
