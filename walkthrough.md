@@ -64,6 +64,7 @@
    - 僅在 Raw 原文模式或 LLM 連線失敗時保留 OpenCC (S2t) 轉碼做確定性字形兜底。
    - 更新了單元測試 `polish_output_honors_chinese_script_preference`。
 
-3. **測試與驗證**：
+3. **測試與驗證與 System Prompt 正向優化**：
+   - 優化了 [polish.rs](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/src/polish.rs) 中的 `translate_system_prompt_base`，將輸出的否定禁令轉為正向格式規範（`直接输出翻译后的纯文本正文（从第一个字起即为译文正文本身）。`），提升 LLM 格式遵循穩定度。
    - 所有單元測試與 Node 驗證腳本皆順利通過。
 

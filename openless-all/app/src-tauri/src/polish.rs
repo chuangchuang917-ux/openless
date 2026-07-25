@@ -1894,8 +1894,7 @@ pub mod prompts {
              - 转写全是 fillers（\"嗯嗯啊那个\"）时，输出空字符串。\n\
              \n\
              # 输出\n\
-             只输出翻译后的正文，\u{4E0D}带 \u{300C}翻译：\u{300D}\u{300C}译文：\u{300D}\u{300C}Translation:\u{300D}之类前缀，\
-             \u{4E0D}加引号、\u{4E0D}加 markdown 围栏。",
+             直接输出翻译后的纯文本正文（从第一个字起即为译文正文本身）。",
             lang = target_language
         )
     }
