@@ -268,7 +268,7 @@ jobs:
               msi_exit=$?
             fi
           else
-            npm run tauri -- build --bundles nsis
+            npm run tauri -- build --bundles nsis --config '{"bundle":{"createUpdaterArtifacts":false}}'
             nsis_exit=$?
             if [ "${OPENLESS_RELEASE_CHANNEL:-stable}" = "beta" ]; then
               echo "OPENLESS_SKIP_WINDOWS_MSI=1" >> "$GITHUB_ENV"
@@ -276,7 +276,7 @@ jobs:
               msi_exit=0
             else
               echo "OPENLESS_SKIP_WINDOWS_MSI=0" >> "$GITHUB_ENV"
-              npm run tauri -- build --bundles msi
+              npm run tauri -- build --bundles msi --config '{"bundle":{"createUpdaterArtifacts":false}}'
               msi_exit=$?
             fi
           fi
