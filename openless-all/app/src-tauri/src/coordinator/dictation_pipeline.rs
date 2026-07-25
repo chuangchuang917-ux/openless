@@ -2,7 +2,7 @@
 //! Encapsulates audio capture, ASR transcription, LLM polish/translation, and text insertion strategy.
 //! Hides internal pipeline complexity behind a minimal interface: `start_session` and `cancel`.
 
-use super::*;
+use crate::types::{ChineseScriptPreference, OutputLanguagePreference, PolishMode, WindowsInsertionMode};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
@@ -65,7 +65,7 @@ impl DictationPipeline {
         script_pref: ChineseScriptPreference,
         windows_insertion_mode: crate::types::WindowsInsertionMode,
     ) -> bool {
-        dictation::streaming_insert_eligible(
+        crate::coordinator::dictation::streaming_insert_eligible(
             streaming_enabled,
             translation_active,
             mode,
