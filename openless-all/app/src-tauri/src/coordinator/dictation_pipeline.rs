@@ -65,7 +65,7 @@ impl DictationPipeline {
         script_pref: ChineseScriptPreference,
         windows_insertion_mode: crate::types::WindowsInsertionMode,
     ) -> bool {
-        crate::coordinator::dictation::streaming_insert_eligible(
+        super::dictation::streaming_insert_eligible(
             streaming_enabled,
             translation_active,
             mode,

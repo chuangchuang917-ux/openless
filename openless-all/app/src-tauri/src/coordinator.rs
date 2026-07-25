@@ -62,15 +62,15 @@ use crate::windows_ime_ipc::ImeSubmitTarget;
 #[cfg(target_os = "windows")]
 use crate::windows_ime_session::{PreparedWindowsImeSession, WindowsImeSessionController};
 
-mod asr_wiring;
-mod capsule_focus;
-mod dictation;
-mod dictation_pipeline;
-mod hotkey_loops;
-mod polish_flow;
-mod qa;
-mod qa_session;
-mod resources;
+pub(crate) mod asr_wiring;
+pub(crate) mod capsule_focus;
+pub(crate) mod dictation;
+pub(crate) mod dictation_pipeline;
+pub(crate) mod hotkey_loops;
+pub(crate) mod polish_flow;
+pub(crate) mod qa;
+pub(crate) mod qa_session;
+pub(crate) mod resources;
 
 use asr_wiring::*;
 use capsule_focus::*;
