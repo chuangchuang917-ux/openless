@@ -21,8 +21,19 @@ impl WindowsImeAdapter {
         false
     }
 
+    #[cfg(target_os = "windows")]
     pub fn current_status(&self) -> WindowsImeStatus {
         crate::windows_ime_profile::get_windows_ime_status()
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    pub fn current_status(&self) -> WindowsImeStatus {
+        WindowsImeStatus {
+            state: WindowsImeInstallState::NotWindows,
+            using_tsf_backend: false,
+            message: "Windows TSF IME backend is only available on Windows".to_string(),
+            dll_path: None,
+        }
     }
 
     pub fn sync_profile_with_preferences(&self, _prefs: &UserPreferences) -> anyhow::Result<()> {
