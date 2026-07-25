@@ -21,26 +21,10 @@ impl WindowsImeAdapter {
         false
     }
 
-    #[cfg(target_os = "windows")]
     pub fn current_status(&self) -> WindowsImeStatus {
-        crate::windows_ime_profile::query_windows_ime_status()
+        crate::windows_ime_profile::get_windows_ime_status()
     }
 
-    #[cfg(not(target_os = "windows"))]
-    pub fn current_status(&self) -> WindowsImeStatus {
-        WindowsImeStatus {
-            installed: WindowsImeInstallState::NotInstalled,
-            active: false,
-        }
-    }
-
-    #[cfg(target_os = "windows")]
-    pub fn sync_profile_with_preferences(&self, prefs: &UserPreferences) -> anyhow::Result<()> {
-        crate::windows_ime_profile::sync_profile_with_preferences(prefs)?;
-        Ok(())
-    }
-
-    #[cfg(not(target_os = "windows"))]
     pub fn sync_profile_with_preferences(&self, _prefs: &UserPreferences) -> anyhow::Result<()> {
         Ok(())
     }
@@ -58,8 +42,8 @@ mod tests {
         } else {
             assert!(!adapter.is_supported());
             assert_eq!(
-                adapter.current_status().installed,
-                WindowsImeInstallState::NotInstalled
+                adapter.current_status().state,
+                WindowsImeInstallState::NotWindows
             );
         }
     }
