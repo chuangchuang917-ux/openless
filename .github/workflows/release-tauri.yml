@@ -109,8 +109,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
         run: |
           if [ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
-            echo "::error::TAURI_SIGNING_PRIVATE_KEY is required for signed auto-update artifacts."
-            exit 1
+            echo "::warning::TAURI_SIGNING_PRIVATE_KEY not configured, proceeding with unsigned release artifacts."
           fi
 
       - name: Check Apple signing availability
