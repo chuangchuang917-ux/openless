@@ -80,19 +80,29 @@
    - 建立 [windows_ime_adapter.rs](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/src/windows_ime_adapter.rs)，將 TSF Profile 註冊表登錄 (`0x0404`)、管道 IPC 通訊與 Session 狀態完全隱藏。
    - 提供 `sync_status()` 與 `insert_text(text)` 介面，並於 macOS / Linux 作業系統自動退回 No-Op Stub。
 
-## 2026-07-26 Style Packs 繁體中文全面化
+## 2026-07-26 System Prompt 分析、Style Packs 繁體中文全面化與自動編譯建置
 
-根據使用者需求，將 OpenLess 風格包 (Style Packs) 相關之名稱、描述、範例、System Prompt 預設範本及介面文字全面改為繁體中文：
+根據使用者需求，對 System Prompt 預設設定進行分析，並將 OpenLess 風格包 (Style Packs) 相關之名稱、描述、範例、System Prompt 預設範本及介面文字全面改為繁體中文，最後推送到 GitHub 觸發自動編譯：
 
-1. **Rust 後端核心與風格包數據 (`types.rs`)**：
+1. **System Prompt 預設機制分析**：
+   - 分析並釐清 System Prompt 的模組化動態裝配結構（`# 上下文` 前提 + 核心風格 Prompt + `{{HOTWORDS}}` 熱詞塊 + `polish_injection_defense` 安全防禦）。
+   - 確認先前預設輸出簡體字的原因：原 Prompt 規範與內建示例全是簡體字，且預設設定為 `Auto`；經本次調整與切換至「繁體中文」偏好後，系統會注入 `中文輸出偏好：繁體中文...` 確保穩定輸出繁體字。
+
+2. **Rust 後端核心與風格包數據 (`types.rs`)**：
    - 更新 [types.rs](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/src/types.rs)：
      - `PolishMode::display_name` 改為「原文」、「輕度潤色」、「清晰結構」、「正式表達」。
      - `builtin_style_pack_for_mode` 中 4 個內建風格包 (`raw`, `light`, `structured`, `formal`) 的 `name`、`description`、`examples` (標題/輸入/輸出) 與 `tags` 全面轉換為繁體中文。
 
-2. **前端與 Mock 數據**：
+3. **前端、Mock 數據與 i18n 介面**：
    - 更新 [mock-data.ts](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src/lib/ipc/mock-data.ts) 中的 `mockStylePacks` 與 `builtinDefaults` 為繁體中文。
    - 更新 [Style.tsx](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src/pages/Style.tsx) 中的 `NEW_PACK_TEMPLATE_BASE` 與 `NEW_PACK_PROMPT_TEMPLATE` 新建風格包預設範本為繁體中文。
    - 更新 [zh-TW.ts](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src/i18n/zh-TW.ts) 中風格選單相關之用語（如 `目前預設`、`設為預設`、`整體啟用`、`自訂提示詞` 等）。
+
+4. **版本升級、Git 提交與 GitHub Actions 編譯觸發**：
+   - 將專案版本號由 `1.3.22` 提升至 `1.3.23`（更新 [package.json](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/package.json)、[Cargo.toml](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/Cargo.toml)、[tauri.conf.json](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/tauri.conf.json)）。
+   - 完成 Git Commit (`feat: convert style packs metadata and prompts to Traditional Chinese` & `chore: bump version to 1.3.23`)。
+   - 建立並推送 Release Tag **`v1.3.23-tauri`** 到 GitHub Repository (`chuangchuang917-ux/openless`)，自動觸發 GitHub Actions `release-tauri.yml` 自動打包與構建多平台 Release 安裝檔。
+
 
 
 
