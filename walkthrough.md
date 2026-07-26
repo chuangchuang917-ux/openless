@@ -80,4 +80,19 @@
    - 建立 [windows_ime_adapter.rs](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/src/windows_ime_adapter.rs)，將 TSF Profile 註冊表登錄 (`0x0404`)、管道 IPC 通訊與 Session 狀態完全隱藏。
    - 提供 `sync_status()` 與 `insert_text(text)` 介面，並於 macOS / Linux 作業系統自動退回 No-Op Stub。
 
+## 2026-07-26 Style Packs 繁體中文全面化
+
+根據使用者需求，將 OpenLess 風格包 (Style Packs) 相關之名稱、描述、範例、System Prompt 預設範本及介面文字全面改為繁體中文：
+
+1. **Rust 後端核心與風格包數據 (`types.rs`)**：
+   - 更新 [types.rs](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src-tauri/src/types.rs)：
+     - `PolishMode::display_name` 改為「原文」、「輕度潤色」、「清晰結構」、「正式表達」。
+     - `builtin_style_pack_for_mode` 中 4 個內建風格包 (`raw`, `light`, `structured`, `formal`) 的 `name`、`description`、`examples` (標題/輸入/輸出) 與 `tags` 全面轉換為繁體中文。
+
+2. **前端與 Mock 數據**：
+   - 更新 [mock-data.ts](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src/lib/ipc/mock-data.ts) 中的 `mockStylePacks` 與 `builtinDefaults` 為繁體中文。
+   - 更新 [Style.tsx](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src/pages/Style.tsx) 中的 `NEW_PACK_TEMPLATE_BASE` 與 `NEW_PACK_PROMPT_TEMPLATE` 新建風格包預設範本為繁體中文。
+   - 更新 [zh-TW.ts](file:///c:/Users/alber/Desktop/antigravity/openless/openless-all/app/src/i18n/zh-TW.ts) 中風格選單相關之用語（如 `目前預設`、`設為預設`、`整體啟用`、`自訂提示詞` 等）。
+
+
 
